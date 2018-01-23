@@ -6,7 +6,7 @@ import CustomButton from '../components/CustomButton';
 export default class RegisterScreen extends Component {
 
     static navigationOptions = {
-        title: 'Sign Up',
+        title: 'Registration',
         headerTitleStyle: {
             alignSelf: 'center'
         }
@@ -54,10 +54,13 @@ export default class RegisterScreen extends Component {
         });
     }
 
+    navigateToLogin = () => {
+        this.props.navigation.navigate('Login');
+    }
+
     render(){
         return (
             <View style={styles.RegisterContainer}>
-                <Header headerTitle={'Login'} />
                 <View style={styles.RegisterFormView}>
                     <TextInput placeholder="Email..." onChangeText={this.usernameTextChange} value={this.state.email} />
                     <TextInput placeholder="First Name..." onChangeText={this.passwordTextChange} value={this.state.firstName} />
@@ -67,12 +70,12 @@ export default class RegisterScreen extends Component {
                     <TextInput placeholder="Confirm Password..." onChangeText={this.passwordTextChange} value={this.state.password} secureTextEntry={true} />
                     <CustomButton title={"Submit"} color={'#3498db'} buttonPress={this.submitForm} />
                     <CustomButton title={"Cancel"} color={'#3498db'} buttonPress={this.resetForm} />
-                    <TouchableHighlight>
-                        <Text>Login?</Text>
+                    <View style={styles.LinksView}>
+                    <TouchableHighlight style={styles.LinkHighlights} onPress={this.navigateToLogin}>
+                        <Text>Already have an account? Login</Text>
                     </TouchableHighlight>
-                    <TouchableHighlight>
-                        <Text>Forgot Username/Password?</Text>
-                    </TouchableHighlight>
+                    </View>
+                    
                 </View>                
             </View>
         );
@@ -81,10 +84,17 @@ export default class RegisterScreen extends Component {
 
 const styles = StyleSheet.create({
     RegisterContainer: {
-        flex: 1
+        flex: 1,
+        paddingTop: 15
     },
     RegisterFormView: {
         paddingLeft: 3,
         paddingRight: 3
+    },
+    LinksView:{
+        alignItems: 'center'
+    },
+    LinkHighlights: {
+        margin: 5
     }
 });

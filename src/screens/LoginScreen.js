@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight} from 'react-native';
+import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Switch} from 'react-native';
 import Header from '../components/Header';
 import CustomButton from '../components/CustomButton';
 
@@ -16,9 +16,9 @@ export default class LoginScreen extends Component {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            remember: false
         };
-
         this.submitForm = this.submitForm.bind(this);
         this.resetForm = this.resetForm.bind(this);
     }    
@@ -30,7 +30,8 @@ export default class LoginScreen extends Component {
     resetForm = () => {
         this.setState({
            username: '',
-           password: '' 
+           password: '',
+           remember: false
         });
     }
 
@@ -54,12 +55,21 @@ export default class LoginScreen extends Component {
         console.log("Navigating to Forgot Page!")
     }
 
+    toggleRememberMe = () => {
+        this.setState({
+            remember: !this.state.remember
+        });
+    }
+
     render(){
         return (
             <View style={styles.LoginContainer}>
                 <View style={styles.LoginFormView}>
                     <TextInput placeholder="Username..." onChangeText={this.usernameTextChange} value={this.state.username} />
                     <TextInput placeholder="Password..." onChangeText={this.passwordTextChange} value={this.state.password} secureTextEntry={true} />
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Switch value={this.state.remember} onValueChange={this.toggleRememberMe} /><Text>Remember Me?</Text>
+                    </View>                    
                     <CustomButton title={"Submit"} color={'#3498db'} buttonPress={this.submitForm} />
                     <CustomButton title={"Cancel"} color={'#3498db'} buttonPress={this.resetForm} />
                     <View style={styles.LinksView}>
