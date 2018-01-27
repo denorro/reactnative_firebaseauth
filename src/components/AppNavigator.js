@@ -4,14 +4,11 @@ import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotAccount from './src/screens/ForgotAccount';
 
-const App = StackNavigator({
+const AppNavigator = StackNavigator(
+{
   Login: { screen: LoginScreen },
   Register: { screen: RegisterScreen },
   ForgotAccount: { screen: ForgotAccount }
 });
 
-export default App;
-
-
-
-
+export default AppNavigator;

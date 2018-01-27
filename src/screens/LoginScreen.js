@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Switch} from 'react-native';
+import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Switch, Alert, ActivityIndicator} from 'react-native';
+import firebase from 'firebase';
 import Header from '../components/Header';
 import CustomButton from '../components/CustomButton';
+
 
 export default class LoginScreen extends Component {
 
@@ -15,29 +17,61 @@ export default class LoginScreen extends Component {
     constructor(props){
         super(props);
         this.state = {
-            username: '',
+            email: '',
             password: '',
-            remember: false
+            remember: false,
+            loading: false
         };
         this.submitForm = this.submitForm.bind(this);
         this.resetForm = this.resetForm.bind(this);
     }    
 
+    componentWillMount(){
+        firebase.initializeApp({
+            apiKey: "AIzaSyCOYBUJSoNygMCfBiiUzsf63WvTKDv2h04",
+            authDomain: "rn-auth-f291b.firebaseapp.com",
+            databaseURL: "https://rn-auth-f291b.firebaseio.com",
+            projectId: "rn-auth-f291b",
+            storageBucket: "rn-auth-f291b.appspot.com",
+            messagingSenderId: "507848685903"
+          });
+    }
+
     submitForm = () => {
-        console.log('form submitted');
+        const {email,password} = this.state;
+        if(email === '' || password === ''){
+            Alert.alert('Please provide E-Mail and Password!');
+        }
+        else{
+            this.setState({loading: true});
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then((result) => {
+                        console.log(result);
+                        this.setState({loading: false});
+                        Alert.alert('Yay! Welcome!');
+                        this.resetForm();
+                        //this.props.navigation.navigate('ForgotAccount');
+                    })
+                    .catch((error) => {
+                        this.setState({loading: false});
+                        console.log(error);
+                        Alert.alert('Wrong email/password! Account may not exist.');
+                        this.resetForm();
+                    });             
+        }     
     }
 
     resetForm = () => {
         this.setState({
-           username: '',
+           email: '',
            password: '',
            remember: false
         });
     }
 
-    usernameTextChange = (newText) => {
+    emailTextChange = (newText) => {
         this.setState({
-            username: newText
+            email: newText
         });
     }
 
@@ -48,11 +82,11 @@ export default class LoginScreen extends Component {
     }
 
     navigateToRegister = () => {
-        this.props.navigation.navigate('Register')
+        this.props.navigation.navigate('Register');
     }
 
     navigateToForgotAccount = () => {
-        console.log("Navigating to Forgot Page!")
+        this.props.navigation.navigate('ForgotAccount');
     }
 
     toggleRememberMe = () => {
@@ -61,26 +95,41 @@ export default class LoginScreen extends Component {
         });
     }
 
+    isLoading(){
+        if(this.state.loading){
+            return (
+                <View style={styles.spinnerContainer}>
+                    <ActivityIndicator size="large" color="#0000ff" animating={this.state.loading} hidesWhenStopped={true} />
+                </View>
+            );
+        }
+        else{
+            return (
+                <CustomButton title={"Submit"} color={'#3498db'} onPress={this.submitForm} />
+            );
+        }
+    }
+
     render(){
         return (
             <View style={styles.LoginContainer}>
                 <View style={styles.LoginFormView}>
-                    <TextInput placeholder="Username..." onChangeText={this.usernameTextChange} value={this.state.username} />
+                    <TextInput placeholder="E-Mail..." onChangeText={this.emailTextChange} value={this.state.email} />
                     <TextInput placeholder="Password..." onChangeText={this.passwordTextChange} value={this.state.password} secureTextEntry={true} />
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Switch value={this.state.remember} onValueChange={this.toggleRememberMe} /><Text>Remember Me?</Text>
                     </View>                    
-                    <CustomButton title={"Submit"} color={'#3498db'} buttonPress={this.submitForm} />
-                    <CustomButton title={"Cancel"} color={'#3498db'} buttonPress={this.resetForm} />
+                    {this.isLoading()}
+                    <CustomButton title={"Cancel"} color={'#3498db'} onPress={this.resetForm} />
                     <View style={styles.LinksView}>
                         <TouchableHighlight style={styles.LinkHighlights} onPress={this.navigateToForgotAccount}>
-                            <Text>Forgot Username/Password?</Text>
+                            <Text>Forgot Password?</Text>
                         </TouchableHighlight>
                         <TouchableHighlight style={styles.LinkHighlights} onPress={this.navigateToRegister}>
                             <Text>Register</Text>
                         </TouchableHighlight>                        
                     </View>                    
-                </View>                
+                </View>  
             </View>
         );
     }
@@ -100,5 +149,10 @@ const styles = StyleSheet.create({
     },
     LinkHighlights: {
         margin: 5
+    },
+    spinnerContainer:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10
     }
 });

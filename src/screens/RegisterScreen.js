@@ -16,6 +16,7 @@ export default class RegisterScreen extends Component {
         super(props);
         this.state = {
             email: '',
+            phone: '',
             firstName: '',
             lastName: '',
             username: '',
@@ -34,6 +35,7 @@ export default class RegisterScreen extends Component {
     resetForm = () => {
         this.setState({
             email: '',
+            phone: '',
             firstName: '',
             lastName: '',
             username: '',
@@ -42,40 +44,28 @@ export default class RegisterScreen extends Component {
         });
     }
 
-    usernameTextChange = (newText) => {
-        this.setState({
-            username: newText
-        });
-    }
-
-    passwordTextChange = (newText) => {
-        this.setState({
-            password: newText
-        });
-    }
-
-    navigateToLogin = () => {
-        this.props.navigation.navigate('Login');
+    navigateTo = (screen) => {
+        this.props.navigation.navigate(screen);
     }
 
     render(){
         return (
             <View style={styles.RegisterContainer}>
                 <View style={styles.RegisterFormView}>
-                    <TextInput placeholder="Email..." onChangeText={this.usernameTextChange} value={this.state.email} />
-                    <TextInput placeholder="First Name..." onChangeText={this.passwordTextChange} value={this.state.firstName} />
-                    <TextInput placeholder="Last Name..." onChangeText={this.passwordTextChange} value={this.state.firstName} />
-                    <TextInput placeholder="Username..." onChangeText={this.usernameTextChange} value={this.state.username} />
-                    <TextInput placeholder="Password..." onChangeText={this.passwordTextChange} value={this.state.password} secureTextEntry={true} />
-                    <TextInput placeholder="Confirm Password..." onChangeText={this.passwordTextChange} value={this.state.password} secureTextEntry={true} />
-                    <CustomButton title={"Submit"} color={'#3498db'} buttonPress={this.submitForm} />
-                    <CustomButton title={"Cancel"} color={'#3498db'} buttonPress={this.resetForm} />
+                    <TextInput placeholder="Email..." onChangeText={(newText) => this.setState({email: newText})} value={this.state.email} keyboardType="email-address"/>
+                    <TextInput placeholder="Phone..." onChangeText={(newText) => this.setState({phone: newText})} value={this.state.phone} keyboardType="phone-pad"/>
+                    <TextInput placeholder="First Name..." onChangeText={(newText) => this.setState({firstName: newText})} value={this.state.firstName} />
+                    <TextInput placeholder="Last Name..." onChangeText={(newText) => this.setState({lastName: newText})} value={this.state.lastName} />
+                    <TextInput placeholder="Username..." onChangeText={(newText) => this.setState({username: newText})} value={this.state.username} />
+                    <TextInput placeholder="Password..." onChangeText={(newText) => this.setState({password: newText})} value={this.state.password} secureTextEntry={true} />
+                    <TextInput placeholder="Confirm Password..." onChangeText={(newText) => this.setState({confirmPassword: newText})} value={this.state.confirmPassword} secureTextEntry={true} />
+                    <CustomButton title={"Submit"} color={'#3498db'} onPress={this.submitForm} />
+                    <CustomButton title={"Cancel"} color={'#3498db'} onPress={this.resetForm} />
                     <View style={styles.LinksView}>
-                    <TouchableHighlight style={styles.LinkHighlights} onPress={this.navigateToLogin}>
-                        <Text>Already have an account? Login</Text>
-                    </TouchableHighlight>
-                    </View>
-                    
+                        <TouchableHighlight style={styles.LinkTouchHighlights} onPress={() => this.navigateTo('Login')}>
+                            <Text>Already have an account? Login</Text>
+                        </TouchableHighlight>
+                    </View>                    
                 </View>                
             </View>
         );
@@ -94,7 +84,7 @@ const styles = StyleSheet.create({
     LinksView:{
         alignItems: 'center'
     },
-    LinkHighlights: {
+    LinkTouchHighlights: {
         margin: 5
     }
 });

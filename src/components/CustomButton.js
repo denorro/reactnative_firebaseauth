@@ -3,15 +3,12 @@ import {StyleSheet, Button, View} from 'react-native';
 
 const CustomButton = (props) => {
 
-    
-
     return (
         <View style={styles.ButtonContainer}>
-            <Button title={props.title} color={props.color} onPress={props.buttonPress}/>
+            <Button title={props.title} color={props.color} onPress={props.onPress}/>
         </View>
         
-    );
-    
+    );    
 };
 
 const styles = StyleSheet.create({
