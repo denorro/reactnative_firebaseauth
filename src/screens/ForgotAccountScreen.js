@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import CustomButton from '../components/CustomButton';
 
-export default class ForgotAccount extends Component {
+export default class ForgotAccountScreen extends Component {
 
     static navigationOptions = {
         title: 'Forgot Username/Password?'
@@ -21,8 +21,7 @@ export default class ForgotAccount extends Component {
         }
         else{
             Alert.alert("Please provide your email...");
-        }
-        
+        }        
     };
 
     emailTextChange = (newText) => {

@@ -3,6 +3,7 @@ import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Switch, A
 import firebase from 'firebase';
 import Header from '../components/Header';
 import CustomButton from '../components/CustomButton';
+import User from '../models/User';
 
 
 export default class LoginScreen extends Component {
@@ -24,17 +25,6 @@ export default class LoginScreen extends Component {
         };
         this.submitForm = this.submitForm.bind(this);
         this.resetForm = this.resetForm.bind(this);
-    }    
-
-    componentWillMount(){
-        firebase.initializeApp({
-            apiKey: "AIzaSyCOYBUJSoNygMCfBiiUzsf63WvTKDv2h04",
-            authDomain: "rn-auth-f291b.firebaseapp.com",
-            databaseURL: "https://rn-auth-f291b.firebaseio.com",
-            projectId: "rn-auth-f291b",
-            storageBucket: "rn-auth-f291b.appspot.com",
-            messagingSenderId: "507848685903"
-          });
     }
 
     submitForm = () => {
@@ -45,17 +35,17 @@ export default class LoginScreen extends Component {
         else{
             this.setState({loading: true});
             firebase.auth().signInWithEmailAndPassword(email, password)
-                    .then((result) => {
-                        console.log(result);
+                    .then((user) => {
+                        console.log(user);
                         this.setState({loading: false});
-                        Alert.alert('Yay! Welcome!');
                         this.resetForm();
-                        //this.props.navigation.navigate('ForgotAccount');
+                        let authenticatedUser = new User(user.email, user.emailVerified, user.phoneNumber, user.photoUrl, user.displayName);
+                        this.props.navigation.navigate('UserAccount', {authUser: authenticatedUser });
                     })
                     .catch((error) => {
                         this.setState({loading: false});
                         console.log(error);
-                        Alert.alert('Wrong email/password! Account may not exist.');
+                        Alert.alert('Error', error.message);
                         this.resetForm();
                     });             
         }     

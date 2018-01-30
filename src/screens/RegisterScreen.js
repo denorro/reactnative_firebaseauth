@@ -1,51 +1,82 @@
 import React, {Component} from 'react';
-import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight} from 'react-native';
+import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Alert, ActivityIndicator} from 'react-native';
+import firebase from 'firebase';
 import Header from '../components/Header';
 import CustomButton from '../components/CustomButton';
 
 export default class RegisterScreen extends Component {
 
-    static navigationOptions = {
-        title: 'Registration',
+    static navigationOptions = ({navigation}) => ({
+        title: `Registration`,
         headerTitleStyle: {
             alignSelf: 'center'
         }
-    }   
+    });    
 
     constructor(props){
         super(props);
         this.state = {
             email: '',
-            phone: '',
-            firstName: '',
-            lastName: '',
-            username: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            loading: false
         };
 
-        this.submitForm = this.submitForm.bind(this);
+        this.registerUser = this.registerUser.bind(this);
         this.resetForm = this.resetForm.bind(this);
     }
 
-    submitForm = () => {
-        console.log('register form submitted');
+    registerUser = () => {
+        const {email,password,confirmPassword} = this.state;
+        if(email === '' || password === '' || confirmPassword === ''){
+            Alert.alert('Please provide e-mail and password. All fields required.');
+        }
+        else if(password !== confirmPassword){
+            Alert.alert('Password do not match!');
+        }
+        else {
+            this.setState({loading: true});
+            firebase.auth().createUserWithEmailAndPassword(email,password)
+                    .then((result) => {
+                        console.log(result);
+                        let user = firebase.auth().currentUser();
+                        user.sendEmailVerification().then(() => {
+                            this.setState({loading: false});
+                            this.props.navigation.navigate('UserAccount');
+                        })
+                        .catch((error) => {
+                            firebase.auth().signOut();
+                            this.resetForm();
+                            Alert('Error', 'Error sending verification to your email!');
+                        });
+                        
+                    })
+                    .catch((error) => {
+                        this.setState({loading: false});
+                        console.log(error);
+                        Alert.alert('Error', error.message);
+                        this.resetForm();
+                    });
+        }
     }
 
     resetForm = () => {
         this.setState({
             email: '',
-            phone: '',
-            firstName: '',
-            lastName: '',
-            username: '',
             password: '',
             confirmPassword: ''
         });
     }
 
-    navigateTo = (screen) => {
-        this.props.navigation.navigate(screen);
+    isLoading = () => {
+        if(this.state.loading){
+            return <View style={styles.spinnerContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" animating={this.state.loading} hidesWhenStopped={true} />
+                    </View>;
+        }
+        else{
+            return <CustomButton title={"Submit"} color={'#3498db'} onPress={this.registerUser} />;
+        }
     }
 
     render(){
@@ -53,16 +84,12 @@ export default class RegisterScreen extends Component {
             <View style={styles.RegisterContainer}>
                 <View style={styles.RegisterFormView}>
                     <TextInput placeholder="Email..." onChangeText={(newText) => this.setState({email: newText})} value={this.state.email} keyboardType="email-address"/>
-                    <TextInput placeholder="Phone..." onChangeText={(newText) => this.setState({phone: newText})} value={this.state.phone} keyboardType="phone-pad"/>
-                    <TextInput placeholder="First Name..." onChangeText={(newText) => this.setState({firstName: newText})} value={this.state.firstName} />
-                    <TextInput placeholder="Last Name..." onChangeText={(newText) => this.setState({lastName: newText})} value={this.state.lastName} />
-                    <TextInput placeholder="Username..." onChangeText={(newText) => this.setState({username: newText})} value={this.state.username} />
                     <TextInput placeholder="Password..." onChangeText={(newText) => this.setState({password: newText})} value={this.state.password} secureTextEntry={true} />
                     <TextInput placeholder="Confirm Password..." onChangeText={(newText) => this.setState({confirmPassword: newText})} value={this.state.confirmPassword} secureTextEntry={true} />
-                    <CustomButton title={"Submit"} color={'#3498db'} onPress={this.submitForm} />
+                    {this.isLoading()}
                     <CustomButton title={"Cancel"} color={'#3498db'} onPress={this.resetForm} />
                     <View style={styles.LinksView}>
-                        <TouchableHighlight style={styles.LinkTouchHighlights} onPress={() => this.navigateTo('Login')}>
+                        <TouchableHighlight style={styles.LinkTouchHighlights} onPress={() => this.props.navigation.navigate('Login')}>
                             <Text>Already have an account? Login</Text>
                         </TouchableHighlight>
                     </View>                    
@@ -86,5 +113,10 @@ const styles = StyleSheet.create({
     },
     LinkTouchHighlights: {
         margin: 5
+    },
+    spinnerContainer:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10
     }
 });
