@@ -9,11 +9,13 @@ export default class UserAccountScreen extends Component{
         const headerTitleText = !navigation.state.params.authUser.emailVerified ? 'Verify Account' : 'Hello';
         return {
             title: headerTitleText,
+            headerStyle: {paddingRight: 10},
             headerTitleStyle: {
-                alignSelf: 'center',
-                paddingRight: 10
+                alignSelf: 'center'
             },
-            headerRight: <Button title={"Logout"} onPress={() => firebase.auth().signOut().then(() => navigation.navigate('Login'))} />
+            headerRight: <TouchableHighlight onPress={() => firebase.auth().signOut().then(() => navigation.navigate('Login'))}>
+                            <Text>Logout</Text>
+                        </TouchableHighlight>
         };        
     };
 
@@ -22,7 +24,6 @@ export default class UserAccountScreen extends Component{
         this.state = {
             email: '',
             displayName: '',
-            phoneNumber: '',
             photoUrl: '',
             password: '',
             isSendingEmail: false,
@@ -35,7 +36,6 @@ export default class UserAccountScreen extends Component{
         this.setState({
             email: '',
             displayName: '',
-            phoneNumber: '',
             photoUrl: '',
             password: ''
         });
@@ -51,29 +51,32 @@ export default class UserAccountScreen extends Component{
     }
 
     updateUser = () => {
-        const {email,displayName,phoneNumber,photoUrl,password} = this.state;
-        if(email === '' && displayName === '' && phoneNumber === '' && photoUrl === '' && password === ''){
+        const {email,displayName,photoUrl,password} = this.state;
+        if(email === '' && displayName === '' && photoUrl === '' && password === ''){
             Alert.alert('Update Error', 'Please provide valid values ');
             return;
         }
         let user = firebase.auth().currentUser;
-        if(displayName !== '' || displayName !== null){
+        if(displayName !== '' && displayName !== null){
             user.updateProfile({displayName});
         }
-        if(photoUrl !== '' || photoUrl !== null){
+        if(photoUrl !== '' && photoUrl !== null){
             user.updateProfile({photoUrl});
         }
-        if(email !== '' || email !== null){
+        if(email !== '' && email !== null){
             user.updateEmail(email).then(() => {
                 user.sendEmailVerification()
+                .then()
                 .catch((error) => {
                     Alert.alert('Email Error', error.message);
                 });
             });      
         }
-        if(password !== '' || password !== null){
+        if(password !== '' && password !== null){
             user.updatePassword(password);
-        }        
+        }
+
+        Alert.alert('Update Success', "User's account has been updated.");        
     }
 
     sendEmailVerification = () => {
@@ -133,7 +136,6 @@ export default class UserAccountScreen extends Component{
                     <TextInput placeholder="Display Name..." onChangeText={(newText) => this.setState({displayName: newText})} value={this.state.displayName}  />
                     <TextInput placeholder="Email..." onChangeText={(newText) => this.setState({email: newText})} value={this.state.email} keyboardType="email-address"/>
                     <TextInput placeholder="Password..." onChangeText={(newText) => this.setState({password: newText})} value={this.state.password} secureTextEntry={true} />
-                    <TextInput placeholder="Phone Number" onChangeText={(newText) => this.setState({phoneNumber: newText})} value={this.state.phoneNumber}  />
                     <TextInput placeholder="Photo URL..." onChangeText={(newText) => this.setState({photoUrl: newText})} value={this.state.photoUrl}  />
                     {this.isUpdatingUser()}
                     <CustomButton title={"Cancel"} color={'#3498db'} onPress={this.resetForm} />                  

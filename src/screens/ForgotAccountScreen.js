@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import CustomButton from '../components/CustomButton';
+import firebase from 'firebase';
 
 export default class ForgotAccountScreen extends Component {
 
@@ -11,13 +12,24 @@ export default class ForgotAccountScreen extends Component {
     constructor(){
         super();
         this.state = {
-            email: ''
-        }
+            email: '',
+            loading: false           
+        };
     }
 
     retrieveLostAccount = () => {
-        if(this.state.email){
-            Alert.alert("Email is being sent to the email you specified...");
+        const {email} = this.state;
+        if(email !== '' && email !== null){
+            this.setState({loading:true});
+            firebase.auth().sendPasswordResetEmail(email)
+                    .then((result) => {
+                        this.setState({loading:false, email: ''});
+                        Alert.alert('Success', `Email sent to ${email}`);
+                    })
+                    .catch((error) => {
+                        this.setState({loading:false});
+                        console.log(error);
+                    });
         }
         else{
             Alert.alert("Please provide your email...");
@@ -30,11 +42,29 @@ export default class ForgotAccountScreen extends Component {
         });
     }
 
+    isLoading(){
+        if(this.state.loading){
+            return (
+                <View style={styles.spinnerContainer}>
+                    <ActivityIndicator size="large" color="#0000ff" animating={this.state.loading} />
+                </View>
+            );
+        }
+        else {
+            return (
+                <View>
+                    <TextInput keyboardType="email-address" placeholder="Enter E-Mail Address..." value={this.state.email} onChangeText={(newText) => this.emailTextChange(newText)} />
+                    <CustomButton title={'Submit'} color={'blue'} onPress={this.retrieveLostAccount} />
+                </View>
+            );
+            
+        }
+    }
+
     render(){
         return (
             <View style={styles.ForgotAccountContainer}>
-                <TextInput keyboardType="email-address" placeholder="Enter E-Mail Address..." value={this.state.email} onChangeText={(newText) => this.emailTextChange(newText)} />
-                <CustomButton title={'Submit'} color={'blue'} onPress={this.retrieveLostAccount} />
+                {this.isLoading()}
             </View>
         );
     }
@@ -46,5 +76,10 @@ const styles = StyleSheet.create({
         paddingTop: 15,
         paddingLeft: 3,
         paddingRight: 3
+    },
+    spinnerContainer:{
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10
     }
 });
