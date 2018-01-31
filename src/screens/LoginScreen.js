@@ -36,10 +36,11 @@ export default class LoginScreen extends Component {
             this.setState({loading: true});
             firebase.auth().signInWithEmailAndPassword(email, password)
                     .then((user) => {
-                        console.log(user);
+                        console.log('User: ', user);
                         this.setState({loading: false});
                         this.resetForm();
-                        let authenticatedUser = new User(user.email, user.emailVerified, user.phoneNumber, user.photoUrl, user.displayName);
+                        let authenticatedUser = new User(user.uid, user.email, user.emailVerified, user.phoneNumber, user.photoUrl, user.displayName);
+                        console.log('Auth User: ', authenticatedUser);
                         this.props.navigation.navigate('UserAccount', {authUser: authenticatedUser });
                     })
                     .catch((error) => {

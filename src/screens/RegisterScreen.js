@@ -3,6 +3,7 @@ import {Text, TextInput, StyleSheet, Button, View, TouchableHighlight, Alert, Ac
 import firebase from 'firebase';
 import Header from '../components/Header';
 import CustomButton from '../components/CustomButton';
+import User from '../models/User';
 
 export default class RegisterScreen extends Component {
 
@@ -21,7 +22,6 @@ export default class RegisterScreen extends Component {
             confirmPassword: '',
             loading: false
         };
-
         this.registerUser = this.registerUser.bind(this);
         this.resetForm = this.resetForm.bind(this);
     }
@@ -33,27 +33,17 @@ export default class RegisterScreen extends Component {
         }
         else if(password !== confirmPassword){
             Alert.alert('Password do not match!');
+            this.setState({password:'', confirmPassword:''});
         }
         else {
             this.setState({loading: true});
             firebase.auth().createUserWithEmailAndPassword(email,password)
-                    .then((result) => {
-                        console.log(result);
-                        let user = firebase.auth().currentUser();
-                        user.sendEmailVerification().then(() => {
-                            this.setState({loading: false});
-                            this.props.navigation.navigate('UserAccount');
-                        })
-                        .catch((error) => {
-                            firebase.auth().signOut();
-                            this.resetForm();
-                            Alert('Error', 'Error sending verification to your email!');
-                        });
-                        
+                    .then((user) => {
+                        console.log(user);
+                        this.resetForm();
+                        this.props.navigation.navigate('UserAccount', {authUser: user});                                                         
                     })
                     .catch((error) => {
-                        this.setState({loading: false});
-                        console.log(error);
                         Alert.alert('Error', error.message);
                         this.resetForm();
                     });
@@ -64,7 +54,8 @@ export default class RegisterScreen extends Component {
         this.setState({
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            loading: false
         });
     }
 
